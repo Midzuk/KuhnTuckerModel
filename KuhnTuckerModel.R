@@ -12,11 +12,8 @@ f <- function(x, y) {
 
 uses <- c(1,3,5,7) #　暫定
 
-l <- length(uses)
 
-
-
-mat <- matrix(nrow = l, ncol = l)
+mat <- matrix(nrow = length(uses), ncol = length(uses))
 
 for (i in 1:length(uses)) {
   for (j in 1:length(uses)) {
@@ -29,8 +26,15 @@ jacob <- det(mat)
 
 # 初期値
 site_num <- 10 # 暫定
-qual_keys <- c("A", "B", "C") # 暫定
+
 attr_keys <- c("D", "E", "F") # 暫定
+qual_keys <- c("A", "B", "C") # 暫定
+keys <- c("upsilon", "theta", attr_keys, qual_keys)
+
+param <- runif(length(keys)) #暫定
+names(param) <- keys
+
+
 
 # 効用関数
 u <- function(x, z, attr, qual, err, param) {
@@ -48,8 +52,23 @@ u <- function(x, z, attr, qual, err, param) {
         }) %>%
         reduce(`+`)
       
-      a * log(x[i] * q + param["theta"])
+      return(a * log(x[i] * q + param["theta"]))
     }) %>%
     reduce(`+`)
 }
+
+
+
+log_likelihood <- function(param, x, fun) {
+  log(abs(jacobian(param, x))) + 1:site_num %>%
+    map(function(i) {
+      ind <- ifelse(x == 0, 0, 1)
+      up <- param["upsilon"]
+      f <- fun(x, param)
+      
+      return(-ind * log(up) - ind * f / up - exp(-f / up))
+    })
+}
+
+
 
