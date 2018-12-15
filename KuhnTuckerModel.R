@@ -1,27 +1,5 @@
 library(tidyverse)
-# library(purrr)
 
-# スタディ
-
-# 暫定
-f <- function(x, y) {
-  x + y ^ 2
-}
-
-
-
-uses <- c(1,3,5,7) #　暫定
-
-
-mat <- matrix(nrow = length(uses), ncol = length(uses))
-
-for (i in 1:length(uses)) {
-  for (j in 1:length(uses)) {
-    mat[i,j] = f(uses[i], uses[j])
-  }
-}
-
-jacob <- det(mat)
 
 
 # 初期値
@@ -37,20 +15,11 @@ names(param) <- keys
 
 
 # 効用関数
-u <- function(x, z, attr, qual, err, param) {
+utility <- function(x, z, qual, attr, err, param) {
   log(z) + 1:site_num %>%
     map(function(i) {
-      a <- err[i] + attr_keys %>%
-        map(function(attr_key) {
-          param[attr_key] %*% attr[attr_key]
-        }) %>%
-        reduce(`+`)
-      
-      q <- qual_keys %>%
-        map(function(qual_key) {
-          param[qual_key] %*% qual[i, qual_key]
-        }) %>%
-        reduce(`+`)
+      q <- param[qual_keys] %*% qual[i, qual_keys]
+      a <- err[i] + param[attr_keys] %*% attr[attr_keys]
       
       return(a * log(x[i] * q + param["theta"]))
     }) %>%
@@ -59,16 +28,56 @@ u <- function(x, z, attr, qual, err, param) {
 
 
 
-log_likelihood <- function(param, x, fun) {
-  log(abs(jacobian(param, x))) + 1:site_num %>%
-    map(function(i) {
-      ind <- ifelse(x == 0, 0, 1)
-      up <- param["upsilon"]
-      f <- fun(x, param)
-      
-      return(-ind * log(up) - ind * f / up - exp(-f / up))
-    })
+error <- function(i, param, x, price, income, qual, attr) {
+  q <- param[qual_keys] %*% qual[i, qual_keys]
+  a <- param[attr_keys] %*% attr[attr_keys]
+  
+  return(-log(income - price %*% x) + log(price[i]) + log(x[i] * exp(q) + param["theta"]) - a - q)
 }
+
+
+
+log_likelihood <- function(param, x, price, income, qual, attr) {
+  log(abs(jacobian(param=param, x=x, price=price, income=income, qual=qual))) + 1:site_num %>%
+    map(function(i) {
+      up <- param["upsilon"]
+      err <- error(i=i, param=param, x=x, price=price, income=income, qual=qual, attr=attr)
+      
+      if (x == 0) {
+        return(-exp(-err / up))
+      } else {
+        return(-exp(-err / up) - log(up) - err / up)
+      }
+    }) %>%
+    reduce(`+`)
+}
+
+
+jacobian <- function(param, x, price, income, qual) {
+  uses <- x[x > 0]
+  
+  mat <- matrix(nrow = length(uses), ncol = length(uses))
+  
+  for (i in 1:length(uses)) {
+    for (j in 1:length(uses)) {
+      mat[i,j] = if (i = j) {
+        q <- param[qual_keys] %*% qual[i, qual_keys]
+        
+        p[i] * x[i] / (income - price %*% x) + exp(q) / (x[i] * exp(q) + param["theta"])
+      } else {
+        p[j] * x[j] / (income - price %*% x)
+      }
+    }
+  }
+  
+  return(det(mat))
+}
+
+
+
+
+
+
 
 
 
