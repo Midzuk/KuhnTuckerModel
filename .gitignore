@@ -1,3 +1,5 @@
+.gitignore
+.gitattributes
 .Rproj.user
 .Rhistory
 .RData
