@@ -1,20 +1,6 @@
 library(tidyverse)
 
-# 効用関数
-utility <- function(x, z, sites, resp, param, err) {
-  site_keys <- colnames(sites)
-  resp_keys <- colnames(resp)
-  
-  log(z) + 1:nrow(sites) %>%
-    map(function(i) {
-      q <- param[site_keys] %*% (sites[i, site_keys] %>% as_vector())
-      a <- param[resp_keys] %*% (resp[resp_keys] %>% as_vector())
-      
-      return(exp(a + err[i]) * log(x[i] * exp(q) + param["theta"]))
-    }) %>%
-    reduce(`+`)
-}
-
+# 効用関数 (x部分)
 utility_x <- function(x, sites, resp, param, err) {
   site_keys <- colnames(sites)
   resp_keys <- colnames(resp)
@@ -27,6 +13,15 @@ utility_x <- function(x, sites, resp, param, err) {
       return(exp(a + err[i]) * log(x[i] * exp(q) + param["theta"]))
     }) %>%
     reduce(`+`)
+}
+
+# 効用関数
+utility <- function(x, z, sites, resp, param, err) {
+  log(z) + utility_x(x=x,
+                     sites=sites,
+                     resp=resp,
+                     param=param,
+                     err=err)
 }
 
 
@@ -43,13 +38,14 @@ jacobian <- function(param, x, prices, income, sites) {
   
   for (i in 1:length(uses)) {
     for (j in 1:length(uses)) {
-      mat[i,j] = if (i == j) {
-        q <- param[site_keys] %*% (sites[uses[i], site_keys] %>% as_vector())
+      mat[i,j] =
+        if (i == j) {
+          q <- param[site_keys] %*% (sites[uses[i], site_keys] %>% as_vector())
         
-        prices[uses[i]] * x[uses[i]] / (income - prices %*% x) + 1 / (x[uses[i]] + param["theta"] / exp(q))
-      } else {
-        prices[uses[j]] * x[uses[j]] / (income - prices %*% x)
-      }
+          prices[uses[i]] * x[uses[i]] / (income - prices %*% x) + 1 / (x[uses[i]] + param["theta"] / exp(q))
+        } else {
+          prices[uses[j]] * x[uses[j]] / (income - prices %*% x)
+        }
     }
   }
   
@@ -76,7 +72,7 @@ log_likelihood <- function(param, xs, prices, income, sites, resps) {
   site_keys <- colnames(sites)
   resp_keys <- colnames(resps)
   
-  a <- 1:nrow(resps) %>%
+  1:nrow(resps) %>%
     map(function(i) {
       resp <- resps[i,]
       x <- xs[i,]
@@ -105,10 +101,6 @@ log_likelihood <- function(param, xs, prices, income, sites, resps) {
         reduce(`+`)
     }) %>%
     reduce(`+`)
-  
-  str(a)
-  
-  return(a)
 }
 
 
@@ -142,7 +134,7 @@ error_sample <- function(param, x, prices, income, sites, resp) {
     flatten_dbl()
 } 
 
-# 個人の便益
+# 個人の便益 (二分法)
 cost_benefit <- function(x_without,
                          prices_without,
                          prices_with,

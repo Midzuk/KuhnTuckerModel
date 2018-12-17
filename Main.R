@@ -1,5 +1,6 @@
 library(tidyverse)
 
+# Lib.Rからimport
 source("Lib.R")
 
 # 初期値
@@ -11,7 +12,7 @@ site_num <- nrow(sites)
 resps <- read_csv("person_sample.csv") # 暫定
 resp_num <- nrow(resps)
 
-# パラメータのキー
+# パラメータのkey
 keys <- c("upsilon", "theta", colnames(resps), colnames(sites))
 
 xs <- matrix(round(runif(5*10) * 10), nrow = 5, ncol = 10)
@@ -28,9 +29,7 @@ ll <- function(param) {
                  resps=resps)
 }
 
-ll(c(c(1, 1), rep(1, length(keys) - 2)))
-
-# サンプル
+# パラメータ推定
 res <- optim(c(c(1, 1), rep(0, length(keys) - 2)),
              ll,
              control=list(fnscale=-1),
