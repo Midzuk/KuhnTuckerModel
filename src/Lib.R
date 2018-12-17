@@ -32,8 +32,10 @@ utility <- function(x, z, sites, resp, param, err) {
 jacobian <- function(param, x, prices, income, sites) {
   site_keys <- colnames(sites)
   
+  # 利用したサイトの利用回数
   uses <- which(x>0)
   
+  # 行列の作成
   mat <- matrix(nrow = length(uses), ncol = length(uses))
   
   for (i in 1:length(uses)) {
@@ -49,6 +51,7 @@ jacobian <- function(param, x, prices, income, sites) {
     }
   }
   
+  # 行列式算出
   return(det(mat))
 }
 
@@ -148,6 +151,7 @@ cost_benefit <- function(x_without,
   site_keys <- colnames(sites_without)
   resp_keys <- colnames(resp)
   
+  # ランダム項を設定
   err <- error_sample(param=param,
                       x=x_without,
                       prices=prices_without,
@@ -155,8 +159,10 @@ cost_benefit <- function(x_without,
                       sites=sites_without,
                       resp=resp)
   
+  # withoutでの合成財消費量
   z_without <- income - prices_without %*% x_without
   
+  # withoutでの効用
   utility_without <- utility(x=x_without,
                              z=z_without,
                              sites=sites_with,
@@ -164,7 +170,10 @@ cost_benefit <- function(x_without,
                              param=param,
                              err=err)
   
+  # 合成財消費量の最小値・最大値設定
+  # 最小値
   z_min <- 0
+  # 最大値 (サイト利用回数がいずれも0)
   z_max <- exp(utility_without - utility_x(x=rep(0, nrow(sites_with)),
                                            sites=sites_with,
                                            resp=resp,
