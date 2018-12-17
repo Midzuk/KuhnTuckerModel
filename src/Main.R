@@ -1,7 +1,7 @@
 library(tidyverse)
 
 # Lib.Rからimport
-source("Lib.R")
+source("src/Lib.R")
 
 # 初期値
 # 環境質
