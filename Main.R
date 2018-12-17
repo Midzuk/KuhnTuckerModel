@@ -39,6 +39,9 @@ res <- optim(c(c(1, 1), rep(0, length(keys) - 2)),
 param <- res$par
 names(param) <- keys
 
+
+
+# 平均便益
 cost_benefit_sum_avg(xs_without=xs,
                      prices_without=prices,
                      prices_with=rep(3,10),

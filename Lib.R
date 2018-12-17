@@ -142,7 +142,7 @@ error_sample <- function(param, x, prices, income, sites, resp) {
     flatten_dbl()
 } 
 
-# 個人のCV
+# 個人の便益
 cost_benefit <- function(x_without,
                          prices_without,
                          prices_with,
@@ -215,6 +215,9 @@ cost_benefit <- function(x_without,
   return(income - (z_with + as.numeric(prices_with %*% x_with)))
 }
 
+
+
+# 平均便益
 cost_benefit_sum_avg <- function(xs_without,
                                  prices_without,
                                  prices_with,
