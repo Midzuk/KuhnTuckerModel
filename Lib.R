@@ -204,7 +204,8 @@ cost_benefit <- function(x_without,
     }
   }
   
-  return(income - (z_with + as.numeric(prices_with %*% x_with)))
+  browser()
+  return(income - (z_with + prices_with %*% x_with))
 }
 
 
