@@ -128,7 +128,7 @@ error_sample <- function(param, x, prices, income, sites, resp) {
       if (x[i] == 0) {
         up <- param["upsilon"]
         
-        return(-log(-log(exp(-exp(-err / up) * runif(1))))) * up
+        return(-log(-log(exp(-exp(-err / up) * runif(1)))) * up)
       } else {
         return(err)
       }
@@ -193,7 +193,8 @@ cost_benefit <- function(x_without,
         q <- param[site_keys] %*% (sites_with[i, site_keys] %>% as_vector())
         a <- param[resp_keys] %*% (resp[resp_keys] %>% as_vector())
         
-        return(z_with * exp(a + err[i]) / prices_with[i] - param["theta"] / exp(q))
+        # return(z_with * exp(a + err[i]) / prices_with[i] - param["theta"] / exp(q))
+        return(max(0, z_with * exp(a + err[i]) / prices_with[i] - param["theta"] / exp(q)))
       }) %>%
       flatten_dbl()
     
@@ -214,8 +215,11 @@ cost_benefit <- function(x_without,
     } else {
       # 収束と判定
       flg <- FALSE
+      
     }
   }
+  # str(c("z_with", z_with))
+  # str(c("prices_with %*% x_with", prices_with %*% x_with))
   
   return(income - (z_with + prices_with %*% x_with))
 }
