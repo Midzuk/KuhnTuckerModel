@@ -5,10 +5,10 @@ source("Lib.R")
 
 # 初期値
 # 環境質
-sites <- read_csv("site_sample.csv") # 暫定
+sites <- read_csv("data/site_sample.csv") # 暫定
 
 # 回答者属性
-resps <- read_csv("person_sample.csv") # 暫定
+resps <- read_csv("data/person_sample.csv") # 暫定
 
 # パラメータのkey
 keys <- c("upsilon", "theta", colnames(resps), colnames(sites))
