@@ -179,11 +179,15 @@ cost_benefit <- function(x_without,
                                            resp=resp,
                                            param=param,
                                            err=err))
+  
+  # 合成財消費量の候補
   z_with <- (z_min + z_max) / 2
   
+  # 収束条件フラグ
   flg <- TRUE
   
   while (flg) {
+    # withでのサイト利用回数
     x_with <- 1:nrow(sites_with) %>%
       map(function(i) {
         q <- param[site_keys] %*% (sites_with[i, site_keys] %>% as_vector())
@@ -193,14 +197,13 @@ cost_benefit <- function(x_without,
       }) %>%
       flatten_dbl()
     
+    # withでの効用
     utility_with <- utility(x=x_with,
                             z=z_with,
                             sites=sites_with,
                             resp=resp,
                             param=param,
                             err=err)
-    
-    str(utility_with - utility_without)
     
     if (utility_with - utility_without > conv) {
       z_max <- z_with
@@ -209,11 +212,11 @@ cost_benefit <- function(x_without,
       z_min <- z_with
       z_with <- (z_min + z_max) / 2
     } else {
+      # 収束と判定
       flg <- FALSE
     }
   }
   
-  browser()
   return(income - (z_with + prices_with %*% x_with))
 }
 
