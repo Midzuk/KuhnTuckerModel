@@ -165,7 +165,7 @@ cost_benefit <- function(x_without,
   # withoutでの効用
   utility_without <- utility(x=x_without,
                              z=z_without,
-                             sites=sites_with,
+                             sites=sites_without,
                              resp=resp,
                              param=param,
                              err=err)
