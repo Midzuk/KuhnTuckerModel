@@ -116,7 +116,7 @@ error_sample <- function(param, x, prices, income, sites, resp) {
   resp_keys <- colnames(resp)
   
   1:nrow(sites) %>%
-    map(function(i) {
+    map_dbl(function(i) {
       err <- error(i=i,
                    param=param,
                    x=x,
@@ -133,8 +133,7 @@ error_sample <- function(param, x, prices, income, sites, resp) {
         return(err)
       }
       
-    }) %>%
-    flatten_dbl()
+    })
 } 
 
 # 個人の便益 (二分法)
@@ -189,14 +188,13 @@ cost_benefit <- function(x_without,
   while (flg) {
     # withでのサイト利用回数
     x_with <- 1:nrow(sites_with) %>%
-      map(function(i) {
+      map_dbl(function(i) {
         q <- param[site_keys] %*% (sites_with[i, site_keys] %>% as_vector())
         a <- param[resp_keys] %*% (resp[resp_keys] %>% as_vector())
         
         # return(z_with * exp(a + err[i]) / prices_with[i] - param["theta"] / exp(q))
         return(max(0, z_with * exp(a + err[i]) / prices_with[i] - param["theta"] / exp(q)))
-      }) %>%
-      flatten_dbl()
+      })
     
     # withでの効用
     utility_with <- utility(x=x_with,
