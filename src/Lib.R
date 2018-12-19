@@ -237,7 +237,7 @@ cost_benefit_sum_avg <- function(xs_without,
                                  trials # 試行回数
 ) {
   1:trials %>%
-    map(function(.) {
+    map(~
       1:nrow(resps) %>%
         map(function(i) {
           x_without <- xs_without[i,]
@@ -254,7 +254,7 @@ cost_benefit_sum_avg <- function(xs_without,
                               conv=conv))
         }) %>%
         reduce(`+`)
-    }) %>%
+    ) %>%
     reduce(`+`) / trials
 }
 
