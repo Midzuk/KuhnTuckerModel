@@ -49,3 +49,4 @@ cost_benefit_sum_avg(xs_without=xs,
                      param=param, 
                      conv=0.001,
                      trials=10)
+
